@@ -15,25 +15,15 @@ int MOTOR_FORWARD = HIGH;
 int MOTOR_BACKWARD = LOW;
 
 int state_sensor[5]; // armazena o estado lido dos sensores
-
-// posições do seguidor
-int state_ext_left[]     = {0, 0, 0, 0, 1};
-int state_very_left[]    = {0, 0, 0, 1, 1};
-int state_left[]         = {0, 0, 0, 1, 0};
-int state_slight_left[]  = {0, 0, 1, 1, 0};
-int state_follow[]       = {0, 0, 1, 0, 0};
-int state_slight_right[] = {0, 1, 1, 0, 0};
-int state_right[]        = {0, 1, 0, 0, 0};
-int state_very_right[]   = {1, 1, 0, 0, 0};
-int state_ext_right[]    = {1, 0, 0, 0, 0};
+int lumus = 350;
 
 int speed_right = 0, speed_left = 0;
 
 int error = 0, last_error = 0;
 int proportional = 0, derivative = 0, integral = 0, PID = 0;
-int Kp = 300, Ki = 0, Kd = 100;
+int Kp = 225, Ki = 0, Kd = 0;
 
-int speed_A = 220;
+int speed_A = 200;
 
 //multiplicador do erro
 int MULT_ERR = 1;
@@ -79,61 +69,79 @@ void readSensor()
 {
   // led do sensor acende quando está na cor branco
   // branco == 0 preto == 1
-  state_sensor[0] = digitalRead(sensor_left);
-  state_sensor[1] = digitalRead(sensor_center);
-  state_sensor[2] = digitalRead(sensor_right);
-  state_sensor[3] = digitalRead(sensor_ext_left);
-  state_sensor[4] = digitalRead(sensor_ext_right);
+  state_sensor[0] = analogRead(sensor_ext_left) < lumus ? 0 : 1;
+  state_sensor[1] = analogRead(sensor_left) < lumus ? 0 : 1;
+  state_sensor[2] = analogRead(sensor_center) < lumus ? 0 : 1;
+  state_sensor[3] = analogRead(sensor_right) < lumus ? 0 : 1;
+  state_sensor[4] = analogRead(sensor_ext_right) < lumus ? 0 : 1;
+
+  /*
+  for (int i = 0; i < 5; i++) {
+    Serial.print("sensor ");
+    Serial.println(i);
+    Serial.println(state_sensor[i]);
+  }
+  delay(500);
+  */
 }
 
 int error_calc()
 {
-  if (compare_status(state_ext_left)) {
+  if (state_sensor[0] == 1 &&
+      state_sensor[1] == 0 &&
+      state_sensor[2] == 0 &&
+      state_sensor[3] == 0 &&
+      state_sensor[4] == 0) {
+    error = ERR_EXT_RIGHT;
+  } else if (state_sensor[0] == 1 &&
+             state_sensor[1] == 1 &&
+             state_sensor[2] == 0 &&
+             state_sensor[3] == 0 &&
+             state_sensor[4] == 0) {
+    error = ERR_VERY_RIGHT;
+  } else if (state_sensor[0] == 0 &&
+             state_sensor[1] == 1 &&
+             state_sensor[2] == 0 &&
+             state_sensor[3] == 0 &&
+             state_sensor[4] == 0) {
+    error = ERR_RIGHT;
+  }else if (state_sensor[0] == 0 &&
+            state_sensor[1] == 1 &&
+            state_sensor[2] == 1 &&
+            state_sensor[3] == 0 &&
+            state_sensor[4] == 0) {
+    error = ERR_SLIGHT_RIGHT;
+  }else if (state_sensor[0] == 0 &&
+            state_sensor[1] == 0 &&
+            state_sensor[2] == 1 &&
+            state_sensor[3] == 0 &&
+            state_sensor[4] == 0) {
+    error = ERR_FOLLOW;
+  }else if (state_sensor[0] == 0 &&
+            state_sensor[1] == 0 &&
+            state_sensor[2] == 1 &&
+            state_sensor[3] == 1 &&
+            state_sensor[4] == 0) {
+    error = ERR_SLIGHT_LEFT;
+  }else if (state_sensor[0] == 0 &&
+            state_sensor[1] == 0 &&
+            state_sensor[2] == 0 &&
+            state_sensor[3] == 1 &&
+            state_sensor[4] == 0) {
+    error = ERR_LEFT;
+  }else if (state_sensor[0] == 0 &&
+            state_sensor[1] == 0 &&
+            state_sensor[2] == 0 &&
+            state_sensor[3] == 1 &&
+            state_sensor[4] == 1) {
+    error = ERR_VERY_LEFT;
+  }else if (state_sensor[0] == 0 &&
+            state_sensor[1] == 0 &&
+            state_sensor[2] == 0 &&
+            state_sensor[3] == 0 &&
+            state_sensor[4] == 1) {
     error = ERR_EXT_LEFT;
   }
-  else if (compare_status(state_very_left)) {
-    error = ERR_VERY_LEFT;
-  }
-  else if (compare_status(state_left)) {
-    error = ERR_LEFT;
-  }
-
-  else if (compare_status(state_slight_left)) {
-    error = ERR_SLIGHT_LEFT;
-  }
-
-  else if (compare_status(state_follow)) {
-    error = ERR_FOLLOW;
-  }
-
-  else if (compare_status(state_slight_right)) {
-    error = ERR_SLIGHT_RIGHT;
-  }
-
-  else if (compare_status(state_right)) {
-    error = ERR_RIGHT;
-  }
-
-  else if (compare_status(state_very_right)) {
-    error = ERR_VERY_RIGHT;
-  }
-
-  else if (compare_status(state_ext_right)) {
-    error = ERR_EXT_RIGHT;
-  }
-}
-
-bool compare_status(int state[])
-{
-  if (state_sensor[0] == state[0] && 
-      state_sensor[1] == state[1] && 
-      state_sensor[2] == state[2] &&
-      state_sensor[3] == state[3] &&
-      state_sensor[4] == state[4])
-  {
-    return true;
-  }
-  return false;
 }
 
 void pid_calc() {
