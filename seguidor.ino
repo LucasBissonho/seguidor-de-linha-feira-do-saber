@@ -26,18 +26,18 @@ int Kp = 300, Ki = 0, Kd = 250;
 int speed_A = 255;
 
 //multiplicador do erro
-float MULT_ERR = 1;
+float MULT_ERR = 1.00;
 
 //erro para cada estado
-float ERR_EXT_LEFT     =  4.50 * MULT_ERR;
-float ERR_VERY_LEFT    =  3.25 * MULT_ERR;
-float ERR_LEFT         =  2.00 * MULT_ERR;
-float ERR_SLIGHT_LEFT  =  0.90 * MULT_ERR;
+float ERR_EXT_LEFT     =  5 * MULT_ERR;
+float ERR_VERY_LEFT    =  3 * MULT_ERR;
+float ERR_LEFT         =  2 * MULT_ERR;
+float ERR_SLIGHT_LEFT  =  1 * MULT_ERR;
 float ERR_FOLLOW       =  0.00 * MULT_ERR;
-float ERR_SLIGHT_RIGHT = -0.90 * MULT_ERR;
-float ERR_RIGHT        = -2.00 * MULT_ERR;
-float ERR_VERY_RIGHT   = -3.25 * MULT_ERR;
-float ERR_EXT_RIGHT    = -4.50 * MULT_ERR;
+float ERR_SLIGHT_RIGHT = -1 * MULT_ERR;
+float ERR_RIGHT        = -2 * MULT_ERR;
+float ERR_VERY_RIGHT   = -3 * MULT_ERR;
+float ERR_EXT_RIGHT    = -5 * MULT_ERR;
 
 void setup()
 {
