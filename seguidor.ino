@@ -25,19 +25,16 @@ int Kp = 300, Ki = 0, Kd = 250;
 
 int speed_A = 255;
 
-//multiplicador do erro
-float MULT_ERR = 1.00;
-
 //erro para cada estado
-float ERR_EXT_LEFT     =  5 * MULT_ERR;
-float ERR_VERY_LEFT    =  3 * MULT_ERR;
-float ERR_LEFT         =  2 * MULT_ERR;
-float ERR_SLIGHT_LEFT  =  1 * MULT_ERR;
-float ERR_FOLLOW       =  0.00 * MULT_ERR;
-float ERR_SLIGHT_RIGHT = -1 * MULT_ERR;
-float ERR_RIGHT        = -2 * MULT_ERR;
-float ERR_VERY_RIGHT   = -3 * MULT_ERR;
-float ERR_EXT_RIGHT    = -5 * MULT_ERR;
+int ERR_EXT_LEFT     =  5;
+int ERR_VERY_LEFT    =  3;
+int ERR_LEFT         =  2;
+int ERR_SLIGHT_LEFT  =  1;
+int ERR_FOLLOW       =  0;
+int ERR_SLIGHT_RIGHT = -1;
+int ERR_RIGHT        = -2;
+int ERR_VERY_RIGHT   = -3;
+int ERR_EXT_RIGHT    = -5;
 
 void setup()
 {
@@ -74,15 +71,6 @@ void readSensor()
   state_sensor[2] = analogRead(sensor_center) < lumus ? 0 : 1;
   state_sensor[3] = analogRead(sensor_right) < lumus ? 0 : 1;
   state_sensor[4] = analogRead(sensor_ext_right) < lumus ? 0 : 1;
-
-  /*
-  for (int i = 0; i < 5; i++) {
-    Serial.print("sensor ");
-    Serial.println(i);
-    Serial.println(state_sensor[i]);
-  }
-  delay(500);
-  */
 }
 
 int error_calc()
@@ -145,21 +133,26 @@ int error_calc()
 }
 
 void pid_calc() {
+  /*
   if (error == 0) {
     integral = 0;
   }
+  */
 
   proportional = error;
-  integral += error;
+  //integral += error;
 
+  /*
   if (integral > 255) {
     integral = 255;
   } else if (integral < -255) {
     integral = -255;
   }
+  */
+
   derivative = error - last_error;
 
-  PID = (Kp * proportional) + (Ki * integral) + (Kd * derivative);
+  PID = (Kp * proportional) + (Kd * derivative);
 //  Serial.print("ERROR: ");
 //  Serial.println(error);
   last_error = error;
